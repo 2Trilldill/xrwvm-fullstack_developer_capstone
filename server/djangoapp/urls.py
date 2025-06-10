@@ -12,6 +12,8 @@ urlpatterns = [
     # 🔜 Logout Route
     path(route='logout', view=views.logout_user, name='logout'),
 
+    path(route='get_cars', view=views.get_cars, name='getcars'),
+
     # 🔜 Future paths for dealer reviews and add review will be added later
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

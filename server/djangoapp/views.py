@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from .models import CarMake, CarModel  
+from .populate import initiate          
 import logging
 import json
 
@@ -45,11 +47,9 @@ def registration(request):
             last_name = data.get("lastName")
             email = data.get("email")
 
-            # Check if user already exists
             if User.objects.filter(username=username).exists():
                 return JsonResponse({"error": "Already Registered"}, status=400)
 
-            # Create new user and log them in
             user = User.objects.create_user(username=username, password=password,
                                             first_name=first_name, last_name=last_name, email=email)
             login(request, user)
@@ -60,8 +60,17 @@ def registration(request):
             return JsonResponse({"status": "Error", "message": str(e)}, status=500)
     return JsonResponse({"status": "Invalid method"}, status=405)
 
-# 🔜 Future views for dealership functionality
-# def get_dealerships(request): ...
-# def get_dealer_reviews(request, dealer_id): ...
-# def get_dealer_details(request, dealer_id): ...
-# def add_review(request): ...
+# ✅ GET CARS VIEW
+def get_cars(request):
+    count = CarMake.objects.count()
+    if count == 0:
+        initiate()
+    car_models = CarModel.objects.select_related('car_make')
+    cars = []
+    for car_model in car_models:
+        cars.append({
+            "CarModel": car_model.name,
+            "CarMake": car_model.car_make.name
+        })
+    return JsonResponse({"CarModels": cars})
+
