@@ -92,15 +92,15 @@ def get_dealerships(request, state="All"):
     return JsonResponse({"status": 200, "dealers": dealerships})
 
 # ---------------------------
-# ✅ GET DEALER DETAILS VIEW
+# ✅ GET DEALER DETAILS VIEW (updated)
 # ---------------------------
 def get_dealer_details(request, dealer_id):
     endpoint = f"/fetchDealer/{dealer_id}"
     dealer = get_request(endpoint)
-    return JsonResponse({"dealer": dealer})
+    return JsonResponse({"status": 200, "dealer": [dealer]})
 
 # ---------------------------
-# ✅ GET REVIEWS WITH SENTIMENT
+# ✅ GET REVIEWS WITH SENTIMENT (updated)
 # ---------------------------
 def get_dealer_reviews(request, dealer_id):
     endpoint = f"/fetchReviews/dealer/{dealer_id}"
@@ -109,14 +109,14 @@ def get_dealer_reviews(request, dealer_id):
         text = review.get("review", "")
         sentiment = analyze_review_sentiments(text)
         review["sentiment"] = sentiment.get("label", "neutral")
-    return JsonResponse({"reviews": reviews})
+    return JsonResponse({"status": 200, "reviews": reviews})
 
 # ---------------------------
 # ✅ POST A REVIEW VIEW
 # ---------------------------
 @csrf_exempt
 def add_review(request):
-    if request.user.is_anonymous is False:
+    if not request.user.is_anonymous:
         try:
             data = json.loads(request.body)
             response = post_review(data)
@@ -125,4 +125,3 @@ def add_review(request):
             return JsonResponse({"status": 401, "message": "Error in posting review"})
     else:
         return JsonResponse({"status": 403, "message": "Unauthorized"})
-
